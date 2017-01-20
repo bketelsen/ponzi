@@ -38,14 +38,14 @@ func (c *Cache) Get(id int, contentType string, result interface{}) error {
 		return err
 	}
 	var body []byte
-	url := fmt.Sprintf("%s/api/contents?type=%s&id=%d", c.baseURL, contentType, id)
+	url := fmt.Sprintf("%s/api/content?type=%s&id=%d", c.baseURL, contentType, id)
 	response, err := c.client.Get(url)
 	if err != nil {
 		return err
 	}
 	defer response.Body.Close()
 	body, err = ioutil.ReadAll(response.Body)
-
+	fmt.Println(string(body))
 	if err != nil {
 		return err
 	}
