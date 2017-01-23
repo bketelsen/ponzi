@@ -30,6 +30,33 @@ func New(baseURL string, ttl time.Duration, purge time.Duration) *Cache {
 	}
 }
 
+// GetBySlug returns a single item of content
+func (c *Cache) GetBySlug(slug string, contentType string, result interface{}) error {
+	cached, ok := c.cache.Get(slug)
+	if ok {
+		err := json.Unmarshal(cached.([]byte), result)
+		return err
+	}
+	var body []byte
+	url := fmt.Sprintf("%s/api/content?slug=%s", c.baseURL, slug)
+	response, err := c.client.Get(url)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	body, err = ioutil.ReadAll(response.Body)
+	fmt.Println(string(body))
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return err
+	}
+	c.cache.SetDefault(slug, body)
+	return err
+}
+
 // Get returns a single item of content
 func (c *Cache) Get(id int, contentType string, result interface{}) error {
 	cached, ok := c.cache.Get(strconv.Itoa(id))
